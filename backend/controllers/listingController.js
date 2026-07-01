@@ -1,5 +1,6 @@
 const Listing = require("../models/Listing");
 
+
 // Create Listing
 const createListing = async (req, res) => {
   try {
@@ -158,10 +159,75 @@ const deleteListing = async (req, res) => {
   }
 };
 
+// Search Listings
+const searchListings = async (req, res) => {
+  try {
+   const {
+  city,
+  roomType,
+  genderPreference,
+  minRent,
+  maxRent,
+  page = 1,
+  limit = 10,
+  sort = "-createdAt",
+} = req.query;
+    let filter = {};
+
+    if (city) {
+      filter.city = new RegExp(city, "i");
+    }
+
+    if (roomType) {
+      filter.roomType = roomType;
+    }
+
+    if (genderPreference) {
+      filter.genderPreference = genderPreference;
+    }
+
+    if (minRent || maxRent) {
+      filter.rent = {};
+
+      if (minRent) {
+        filter.rent.$gte = Number(minRent);
+      }
+
+      if (maxRent) {
+        filter.rent.$lte = Number(maxRent);
+      }
+    }
+
+   const totalListings = await Listing.countDocuments(filter);
+
+const listings = await Listing.find(filter)
+  .populate("owner", "name email phone")
+  .sort(sort)
+  .skip((Number(page) - 1) * Number(limit))
+  .limit(Number(limit));
+
+res.status(200).json({
+  totalListings,
+  currentPage: Number(page),
+  totalPages: Math.ceil(totalListings / Number(limit)),
+  count: listings.length,
+  listings,
+});
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
 module.exports = {
   createListing,
   getAllListings,
   getListingById,
   updateListing,
   deleteListing,
+  searchListings,
 };

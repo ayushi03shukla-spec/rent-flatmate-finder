@@ -7,13 +7,16 @@ const {
   getListingById,
   updateListing,
   deleteListing,
+  searchListings,
 } = require("../controllers/listingController");
 const {
   protect,
   authorize,
 } = require("../middleware/authMiddleware");
 router.get("/", getAllListings);
+router.get("/search", searchListings);
 router.get("/:id", getListingById);
+
 
 router.post(
   "/",
