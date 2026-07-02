@@ -1,5 +1,6 @@
 const Interest = require("../models/Interest");
 const Listing = require("../models/Listing");
+const { sendEmail } = require("../services/emailService");
 
 // ===============================
 // Tenant sends interest request
@@ -40,6 +41,23 @@ const sendInterest = async (req, res) => {
       owner: listing.owner._id,
       status: "Pending",
     });
+    await sendEmail(
+  listing.owner.email,
+  "🏠 New Interest in Your Listing",
+  `
+    <h2>Hello ${listing.owner.name},</h2>
+
+    <p><strong>${req.user.name}</strong> is interested in your listing.</p>
+
+    <p>
+      <b>Listing:</b> ${listing.title}<br>
+      <b>City:</b> ${listing.city}<br>
+      <b>Rent:</b> ₹${listing.rent}
+    </p>
+
+    <p>Please login to review the request.</p>
+  `
+);
 
     const populatedInterest = await Interest.findById(interest._id)
       .populate("tenant", "name email phone")
@@ -123,6 +141,40 @@ const updateInterestStatus = async (req, res) => {
     const updatedInterest = await Interest.findById(interest._id)
       .populate("tenant", "name email phone")
       .populate("listing", "title city rent");
+      await sendEmail(
+  updatedInterest.tenant.email,
+  `Your Interest Request has been ${status}`,
+  `
+    <h2>Hello ${updatedInterest.tenant.name},</h2>
+
+    <p>Your interest request has been <b>${status}</b>.</p>
+
+    <p>
+      <b>Listing:</b> ${updatedInterest.listing.title}<br>
+      <b>City:</b> ${updatedInterest.listing.city}<br>
+      <b>Rent:</b> ₹${updatedInterest.listing.rent}
+    </p>
+
+    <p>Thank you for using Rent & Flatmate Finder.</p>
+  `
+);
+      await sendEmail(
+  updatedInterest.tenant.email,
+  `Your Interest Request has been ${status}`,
+  `
+    <h2>Hello ${updatedInterest.tenant.name},</h2>
+
+    <p>Your request for the following listing has been <b>${status}</b>.</p>
+
+    <p>
+      <b>Listing:</b> ${updatedInterest.listing.title}<br>
+      <b>City:</b> ${updatedInterest.listing.city}<br>
+      <b>Rent:</b> ₹${updatedInterest.listing.rent}
+    </p>
+
+    <p>Thank you for using Rent & Flatmate Finder.</p>
+  `
+);
 
     res.status(200).json({
       success: true,
