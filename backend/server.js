@@ -1,11 +1,15 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+dotenv.config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const matchRoutes = require("./routes/matchRoutes");
+const interestRoutes = require("./routes/interestRoutes");
 
-dotenv.config();
+
 
 connectDB();
 
@@ -23,6 +27,9 @@ app.use((req, res, next) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/matches", matchRoutes);
+app.use("/api/interests", interestRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
