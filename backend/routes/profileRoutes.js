@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   createOrUpdateProfile,
+  getMyProfile,
 } = require("../controllers/profileController");
 
 const {
@@ -10,7 +11,15 @@ const {
   authorize,
 } = require("../middleware/authMiddleware");
 
-// Only tenants can create/update their profile
+// Get logged-in tenant profile
+router.get(
+  "/",
+  protect,
+  authorize("tenant"),
+  getMyProfile
+);
+
+// Create or Update tenant profile
 router.post(
   "/",
   protect,

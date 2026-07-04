@@ -1,6 +1,8 @@
 const TenantProfile = require("../models/TenantProfile");
 
-// Create or Update Tenant Profile
+// ==========================
+// Create or Update Profile
+// ==========================
 const createOrUpdateProfile = async (req, res) => {
   try {
     const {
@@ -8,6 +10,10 @@ const createOrUpdateProfile = async (req, res) => {
       minBudget,
       maxBudget,
       moveInDate,
+      occupation,
+      foodPreference,
+      smoking,
+      drinking,
     } = req.body;
 
     let profile = await TenantProfile.findOne({
@@ -19,10 +25,15 @@ const createOrUpdateProfile = async (req, res) => {
       profile.minBudget = minBudget;
       profile.maxBudget = maxBudget;
       profile.moveInDate = moveInDate;
+      profile.occupation = occupation;
+      profile.foodPreference = foodPreference;
+      profile.smoking = smoking;
+      profile.drinking = drinking;
 
       await profile.save();
 
       return res.status(200).json({
+        success: true,
         message: "Profile updated successfully",
         profile,
       });
@@ -34,9 +45,14 @@ const createOrUpdateProfile = async (req, res) => {
       minBudget,
       maxBudget,
       moveInDate,
+      occupation,
+      foodPreference,
+      smoking,
+      drinking,
     });
 
     res.status(201).json({
+      success: true,
       message: "Profile created successfully",
       profile,
     });
@@ -45,6 +61,38 @@ const createOrUpdateProfile = async (req, res) => {
     console.error(error);
 
     res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+// ==========================
+// Get Logged-in Tenant Profile
+// ==========================
+const getMyProfile = async (req, res) => {
+  try {
+    const profile = await TenantProfile.findOne({
+      tenant: req.user._id,
+    });
+
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      profile,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
       message: "Server Error",
     });
   }
@@ -52,4 +100,5 @@ const createOrUpdateProfile = async (req, res) => {
 
 module.exports = {
   createOrUpdateProfile,
+  getMyProfile,
 };

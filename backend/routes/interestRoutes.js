@@ -4,9 +4,9 @@ const router = express.Router();
 const {
   sendInterest,
   getOwnerInterests,
+  getTenantInterests,
   updateInterestStatus,
 } = require("../controllers/interestController");
-
 const {
   protect,
   authorize,
@@ -18,6 +18,12 @@ router.post(
   protect,
   authorize("tenant"),
   sendInterest
+);
+router.get(
+  "/my",
+  protect,
+  authorize("tenant"),
+  getTenantInterests
 );
 
 // Owner views all requests

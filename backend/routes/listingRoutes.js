@@ -5,6 +5,7 @@ const {
   createListing,
   getAllListings,
   getListingById,
+  getMyListings,
   updateListing,
   deleteListing,
   searchListings,
@@ -14,9 +15,17 @@ const {
   authorize,
 } = require("../middleware/authMiddleware");
 router.get("/", getAllListings);
-router.get("/search", searchListings);
-router.get("/:id", getListingById);
 
+router.get("/search", searchListings);
+
+router.get(
+  "/my",
+  protect,
+  authorize("owner"),
+  getMyListings
+);
+
+router.get("/:id", getListingById);
 
 router.post(
   "/",

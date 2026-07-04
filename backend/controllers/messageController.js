@@ -1,7 +1,9 @@
 const Message = require("../models/Message");
 const Interest = require("../models/Interest");
 
-// Save a message
+// =============================
+// Send Message
+// =============================
 const sendMessage = async (req, res) => {
   try {
     const { receiver, listing, message } = req.body;
@@ -30,6 +32,7 @@ const sendMessage = async (req, res) => {
       });
     }
 
+    // Save message
     const newMessage = await Message.create({
       sender: req.user._id,
       receiver,
@@ -37,10 +40,15 @@ const sendMessage = async (req, res) => {
       message,
     });
 
+    // Return populated message
+    const populatedMessage = await Message.findById(newMessage._id)
+      .populate("sender", "_id name")
+      .populate("receiver", "_id name");
+
     res.status(201).json({
       success: true,
       message: "Message sent successfully.",
-      data: newMessage,
+      data: populatedMessage,
     });
 
   } catch (error) {
@@ -53,7 +61,9 @@ const sendMessage = async (req, res) => {
   }
 };
 
-// Get conversation between two users for a listing
+// =============================
+// Get Conversation
+// =============================
 const getMessages = async (req, res) => {
   try {
     const { userId, listingId } = req.params;
@@ -70,7 +80,10 @@ const getMessages = async (req, res) => {
           receiver: req.user._id,
         },
       ],
-    }).sort({ createdAt: 1 });
+    })
+      .populate("sender", "_id name")
+      .populate("receiver", "_id name")
+      .sort({ createdAt: 1 });
 
     res.status(200).json({
       success: true,

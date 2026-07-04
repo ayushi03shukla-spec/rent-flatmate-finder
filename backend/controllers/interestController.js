@@ -85,12 +85,17 @@ const sendInterest = async (req, res) => {
 // ===============================
 const getOwnerInterests = async (req, res) => {
   try {
+
+    console.log("Owner ID:", req.user._id);
+
     const interests = await Interest.find({
       owner: req.user._id,
     })
       .populate("tenant", "name email phone")
       .populate("listing", "title city rent")
       .sort({ createdAt: -1 });
+
+    console.log(interests);
 
     res.status(200).json({
       success: true,
@@ -103,7 +108,7 @@ const getOwnerInterests = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Server Error",
+      message: error.message,
     });
   }
 };
@@ -191,9 +196,34 @@ const updateInterestStatus = async (req, res) => {
     });
   }
 };
+// Tenant views own interest requests
+const getTenantInterests = async (req, res) => {
+  try {
+    const interests = await Interest.find({
+      tenant: req.user._id,
+    })
+      .populate("owner", "name email")
+      .populate("listing", "title city rent")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: interests.length,
+      interests,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
 
 module.exports = {
   sendInterest,
   getOwnerInterests,
+  getTenantInterests,
   updateInterestStatus,
 };

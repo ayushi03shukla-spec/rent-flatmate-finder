@@ -28,6 +28,27 @@ const tenantProfileSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+
+    occupation: {
+      type: String,
+      default: "",
+    },
+
+    foodPreference: {
+      type: String,
+      enum: ["Veg", "Non-Veg", "Both"],
+      default: "Both",
+    },
+
+    smoking: {
+      type: Boolean,
+      default: false,
+    },
+
+    drinking: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

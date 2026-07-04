@@ -6,14 +6,13 @@ const { Server } = require("socket.io");
 const messageRoutes = require("./routes/messageRoutes");
 
 dotenv.config();
-
-const connectDB = require("./config/db");
-
+require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const listingRoutes = require("./routes/listingRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const matchRoutes = require("./routes/matchRoutes");
 const interestRoutes = require("./routes/interestRoutes");
+const connectDB = require("./config/db");
 
 // Connect Database
 connectDB();
@@ -32,6 +31,7 @@ const io = new Server(server, {
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use("/api/profile", profileRoutes);
 
 // Request Logger
 app.use((req, res, next) => {
@@ -56,21 +56,23 @@ app.get("/", (req, res) => {
 // Socket.IO Events
 // =========================
 io.on("connection", (socket) => {
-  console.log("🟢 User Connected:", socket.id);
+  console.log("🟢 Connected:", socket.id);
 
   socket.on("join-room", (roomId) => {
     socket.join(roomId);
-    console.log(`${socket.id} joined room ${roomId}`);
+    console.log(`✅ ${socket.id} joined room ${roomId}`);
   });
 
   socket.on("send-message", (data) => {
-    io.to(data.roomId).emit("receive-message", data);
+    console.log("📨 Socket Message:", data);
 
-    console.log("💬 Message:", data.message);
+    socket.to(data.roomId).emit("receive-message", data);
+
+    console.log("✅ Broadcasted");
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 User Disconnected:", socket.id);
+    console.log("🔴 Disconnected:", socket.id);
   });
 });
 

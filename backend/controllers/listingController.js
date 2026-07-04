@@ -222,11 +222,32 @@ res.status(200).json({
     });
   }
 };
+// Get My Listings
+const getMyListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({
+      owner: req.user._id,
+    }).sort({ createdAt: -1 });
 
+    res.status(200).json({
+      success: true,
+      count: listings.length,
+      listings,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
 module.exports = {
   createListing,
   getAllListings,
   getListingById,
+  getMyListings,
   updateListing,
   deleteListing,
   searchListings,
